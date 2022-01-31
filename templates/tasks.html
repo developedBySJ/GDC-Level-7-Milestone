@@ -1,0 +1,59 @@
+{% extends 'base.html' %} {% block content %}
+<div class="flex items-center justify-between">
+  <h1 class="text-4xl font-bold mb-6">Hi, {{ request.user.username }}</h1>
+  <a href="/user/logout" class="text-red-500">Logout</a>
+</div>
+<div><p>{{completed}} of {{total}} tasks completed</p></div>
+<div class="flex items-center gap-2 my-2">
+  <a
+    href="/tasks"
+    class="text-lg py-2 px-6 rounded-full {%if not request.GET.status%} bg-red-200 text-red-700 {%endif%}"
+    >All
+  </a>
+  <a href="?status=pending" class="text-lg py-2 px-6 rounded-full {%if  request.GET.status == "pending"%} bg-red-200 text-red-700 {%endif%}">
+    Pending
+  </a>
+  <a href="?status=completed" class="text-lg py-2 px-6 rounded-full {%if  request.GET.status == "completed"%} bg-red-200 text-red-700 {%endif%}">
+    Completed
+    </a>
+</div>
+
+{% comment %}
+<h2>Search Tasks</h2>
+
+<form action="" method="get">
+  <input type="text" name="search" />
+  <button type="submit">Search</button>
+</form>
+{% endcomment %}
+
+
+{% for task in tasks %} 
+  <div class="p-4 bg-blue-50 rounded-2xl flex justify-between items-center mb-4">
+    <div>
+      <a href="/detail-task/{{task.id}}" class="block text-xl font-bold {%if task.completed %}text-red-500 line-through opacity-70 {% endif %}">  {{task.title}} [{{task.priority}}]</a>
+      <p>{{task.created_date}}</p>
+    </div>
+    <div>
+      <a href="/update-task/{{task.id}}"  class="inline-block bg-teal-500 p-2 rounded text-white">
+        <i data-feather="edit-2" ></i>
+      </a>
+      <a href="/delete-task/{{task.id}}" class="inline-block bg-red-500 p-2 rounded text-white">
+        <i data-feather="trash"></i>
+      </a>
+    </div>
+  </div>
+{% endfor %}
+{% if not tasks %}
+  <h1 class="text-center font-bold text-4xl py-16">No Todos</h1>
+{% endif %}
+<a href="/create-task" class="block text-center mt-4 btn-primary" >Add Todo</a>
+
+<ul>
+  {% for page in paginator.page_range %}
+  <li class="p-4">
+    <a href="?page={{ page }}">{{ page }}</a>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock content %}

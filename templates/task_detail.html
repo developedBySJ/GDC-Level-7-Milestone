@@ -1,0 +1,13 @@
+{% extends 'base.html' %} {% block content %}
+<h1 class="text-4xl font-bold mb-6">Todo Details</h1>
+<h1 class="text-2xl mt-4">Title</h1>
+<p class="text-lg">{{object.title}}</p>
+<h1 class="text-2xl mt-4">Description</h1>
+<p class="text-lg">{{object.description}}</p>
+<h1 class="text-2xl mt-4">Priority</h1>
+<p class="text-lg">{{object.priority}}</p>
+<h1 class="text-2xl mt-4">Status</h1>
+<p class="text-lg">
+  {% if object.completed %}Completed{% else %}Pending{% endif %}
+</p>
+{% endblock content %}

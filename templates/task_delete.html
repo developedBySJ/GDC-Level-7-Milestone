@@ -1,0 +1,8 @@
+{% extends 'base.html' %} {% block content %}
+<h1 class="text-4xl font-bold mb-6">Delete Task</h1>
+<form method="post">
+  {% csrf_token %}
+  <p class="text-2xl">Are You Sure you want to delete {{object}}?</p>
+  <button type="submit" class="mt-4 btn-primary">Delete</button>
+</form>
+{% endblock content %}
