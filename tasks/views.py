@@ -15,6 +15,31 @@ from django.db.models import F
 from tasks.models import Task
 
 
+def cascade_priority(user, priority):
+    cur_priority = priority
+    while True:
+        filter_task = Task.objects.filter(
+            deleted=False,
+            priority=cur_priority,
+            user=user,
+            completed=False,
+        )
+
+        is_existing_priority = filter_task.exists()
+
+        if not is_existing_priority:
+            break
+        cur_priority += 1
+
+    Task.objects.filter(
+        deleted=False,
+        priority__gte=priority,
+        priority__lte=cur_priority,
+        completed=False,
+        user=user,
+    ).select_for_update().update(priority=F("priority") + 1)
+
+
 class HomeView(View):
     def get(self, request, *args, **kwargs):
         return redirect("/tasks")
@@ -36,7 +61,11 @@ class TaskCreateForm(ModelForm):
         model = Task
         fields = ["title", "description", "completed", "priority"]
         widgets = {
-            "title": forms.TextInput(attrs={"class": "input mb-4", }),
+            "title": forms.TextInput(
+                attrs={
+                    "class": "input mb-4",
+                }
+            ),
             "description": forms.Textarea(attrs={"class": "input mb-4", "rows": "3"}),
             "completed": forms.CheckboxInput(attrs={"class": ""}),
             "priority": forms.NumberInput(attrs={"class": "input"}),
@@ -52,10 +81,9 @@ class GenericTaskView(AuthorizedTaskManager, ListView):
     def get_queryset(self):
         status = self.request.GET.get("status")
 
-        tasks = Task.objects.filter(
-            user=self.request.user,
-            deleted=False
-        ).order_by("completed", "priority")
+        tasks = Task.objects.filter(user=self.request.user, deleted=False).order_by(
+            "completed", "priority"
+        )
 
         if status:
             tasks = tasks.filter(completed=status == "completed")
@@ -65,8 +93,8 @@ class GenericTaskView(AuthorizedTaskManager, ListView):
     def get_context_data(self, **kwargs):
         context = super(GenericTaskView, self).get_context_data(**kwargs)
         base_query = Task.objects.filter(user=self.request.user, deleted=False)
-        context['total'] = base_query.count()
-        context['completed'] = base_query.filter(completed=True).count()
+        context["total"] = base_query.count()
+        context["completed"] = base_query.filter(completed=True).count()
 
         return context
 
@@ -85,28 +113,7 @@ class GenericTaskCreateView(AuthorizedTaskManager, CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def __cascade_priority(self, priority):
-        cur_priority = priority
-        while True:
-            filter_task = Task.objects.filter(
-                deleted=False,
-                priority=cur_priority,
-                user=self.request.user,
-                completed=False
-            )
-
-            is_existing_priority = filter_task.exists()
-
-            if not is_existing_priority:
-                break
-            cur_priority += 1
-
-        Task.objects.filter(
-            deleted=False,
-            priority__gte=priority,
-            priority__lte=cur_priority,
-            completed=False,
-            user=self.request.user
-        ).update(priority=F('priority')+1)
+        cascade_priority(self.request.user, priority)
 
 
 class GenericTaskUpdateView(AuthorizedTaskManager, UpdateView):
@@ -114,6 +121,15 @@ class GenericTaskUpdateView(AuthorizedTaskManager, UpdateView):
     template_name = "task_update.html"
     form_class = TaskCreateForm
     success_url = "/tasks"
+
+    def form_valid(self, form):
+        self.object = form.save()
+        self.__cascade_priority(self.object.priority)
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def __cascade_priority(self, priority):
+        cascade_priority(self.request.user, priority)
 
 
 class GenericTaskDeleteView(AuthorizedTaskManager, DeleteView):
