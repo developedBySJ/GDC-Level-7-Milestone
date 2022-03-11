@@ -1,17 +1,14 @@
-from django.http import HttpResponseRedirect
+from django import forms
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
-
+from django.db.models import F
+from django.forms import ModelForm
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.views import View
+from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
 from django.views.generic.edit import CreateView
-
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
 from django.views.generic.list import ListView
-from django import forms
-from django.forms import ModelForm
-from django.db.models import F
-
 from tasks.models import Task
 
 
