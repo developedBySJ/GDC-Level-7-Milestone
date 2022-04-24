@@ -1,15 +1,16 @@
+
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.db.models import F
 from django.forms import ModelForm
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.views import View
 from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
-from tasks.models import Task
+from tasks.models import Reports, Task
 
 
 def cascade_priority(user, priority):
@@ -138,3 +139,29 @@ class GenericTaskDeleteView(AuthorizedTaskManager, DeleteView):
 class GenericTaskDetailView(AuthorizedTaskManager, DetailView):
     model = Task
     template_name = "task_detail.html"
+
+
+class ReportForm(ModelForm):
+    class Meta:
+        model = Reports
+        fields = ["timing"]
+        widgets = {
+            "timing": forms.TimeInput(
+                attrs={
+                    "class": "input mb-4",
+                    "type": "time"
+                }
+            ),
+
+        }
+
+
+class ReportCreateView(AuthorizedTaskManager, UpdateView):
+    model = Reports
+    template_name = "reports.html"
+    form_class = ReportForm
+    success_url = "/tasks"
+
+    def get_object(self):
+        report_obj, _ = Reports.objects.get_or_create(user=self.request.user)
+        return report_obj

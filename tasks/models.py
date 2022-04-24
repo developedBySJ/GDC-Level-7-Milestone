@@ -2,6 +2,7 @@
 from django.db import models
 
 from django.contrib.auth.models import User
+from django.forms import IntegerField, TimeField
 
 STATUS_CHOICES = (
     ("PENDING", "PENDING"),
@@ -36,3 +37,11 @@ class TaskHistory(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True, blank=True)
     updated_date = models.DateTimeField(auto_now=True)
+
+
+class Reports(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, null=True, blank=True, unique=True)
+    timing = models.TimeField(
+        default="00:00", auto_now=False, auto_now_add=False)
+    last_sent = models.DateTimeField(null=True)

@@ -1,0 +1,17 @@
+{% extends 'base.html' %} {% block content %}
+<div class="flex items-center justify-between">
+  <h1 class="text-4xl font-bold mb-6">Hi, {{ request.user.username }}</h1>
+  <div>
+    <a href="/reports" class="text-red-900 mr-2">Reports</a>
+    <a href="/user/logout" class="text-red-500 ml-2">Logout</a>
+  </div>
+</div>
+<div>
+  <h1 class="text-3xl mb-8">Reports</h1>
+  <form action="" method="post">
+    {{ form.as_p }} {{form.errors}}
+    <button type="submit" class="btn-primary mt-4">Update Settings</button>
+    {% csrf_token %}
+  </form>
+</div>
+{% endblock content %}

@@ -1,7 +1,10 @@
 {% extends 'base.html' %} {% block content %}
 <div class="flex items-center justify-between">
   <h1 class="text-4xl font-bold mb-6">Hi, {{ request.user.username }}</h1>
-  <a href="/user/logout" class="text-red-500">Logout</a>
+  <div >
+    <a href="/reports" class="text-red-500 mr-2">Reports</a>
+    <a href="/user/logout" class="text-red-500 ml-2">Logout</a>
+  </div>
 </div>
 <div><p>{{completed}} of {{total}} tasks completed</p></div>
 <div class="flex items-center gap-2 my-2">

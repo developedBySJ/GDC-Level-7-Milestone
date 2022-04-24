@@ -147,3 +147,9 @@ NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': 'django_filters.rest_framework.DjangoFilterBackend',
 }
+
+BROKER_URL = "redis://localhost:6379"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"
+CELERY_IMPORTS = ("tasks")
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
