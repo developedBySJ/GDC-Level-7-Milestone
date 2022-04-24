@@ -18,7 +18,7 @@ def send_periodic_email():
     )
     print(reports, start)
     for report in reports:
-        send_mail("Your Tasks Report", "generate_email(report.user)",
+        send_mail("Your Tasks Report", generate_email(report.user),
                   "no-reply@task.com", [report.user.email])
         report.last_sent = datetime.now(timezone.utc).replace(hour=report.timing.hour, minute=report.timing.minute,
                                                               second=report.timing.second)
